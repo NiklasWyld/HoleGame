@@ -1,6 +1,34 @@
 import random
 import pygame
 
+class Button():
+    def __init__(self, x, y, image, scale):
+        width = image.get_width()
+        height = image.get_height()
+        self.image = pygame.transform.scale(image, (int(width * scale), int(height * scale)))
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+        self.clicked = False
+
+    def draw(self, surface):
+        action = False
+        #get mouse position
+        pos = pygame.mouse.get_pos()
+
+        #check mouseover and clicked conditions
+        if self.rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:
+                self.clicked = True
+                action = True
+
+        if pygame.mouse.get_pressed()[0] == 0:
+            self.clicked = False
+
+        #draw button on screen
+        surface.blit(self.image, (self.rect.x, self.rect.y))
+
+        return action
+
 pygame.init()
 pygame.display.set_caption('Hole Game')
 screen = pygame.display.set_mode([1000, 800])
@@ -13,6 +41,10 @@ speed = 5
 colors = ['red', 'blue', 'green', 'yellow', 'purple']
 points = []
 points_final = []
+
+play_button_img = pygame.image.load('Button.png').convert_alpha()
+
+play_button = Button(420, 300, play_button_img, 0.3)
 
 state = 'menu'
 
@@ -37,6 +69,8 @@ while running:
                 speed_x = -speed
             if event.key == pygame.K_d:
                 speed_x = speed
+            if event.key == pygame.K_ESCAPE:
+                state = 'menu'
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_a:
                 speed_x = 0
@@ -80,6 +114,9 @@ while running:
         screen.fill('white')
 
         draw_text(100, 'Hole Game', screen, 'black', 250, 50)
+
+        if play_button.draw(screen):
+            state = 'game'
 
         pygame.display.flip()
     else:
